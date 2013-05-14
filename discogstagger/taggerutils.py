@@ -33,23 +33,35 @@ class TaggerUtils(object):
         relvant to a given album (m3u, nfo file and album art grabber.)"""
 
     CHAR_EXCEPTIONS = {
-        "&": "and",
-        " ": "_",
+        #'&' : 'and',
+        #' ' : '_',
+        '/' : '-',
+        '\\' : '-',
+        ':' : ' -', # notice the "space"
+        '*' : '',
+        '?' : '',
+        '"' : '\'',
+        '>' : '-',
+        '<' : '-',
+        '|' : '-'
     }
+
+    album_title = ""
 
     # supported file types.
     FILE_TYPE = (".mp3", ".flac",)
 
     def __init__(self, sourcedir, ogsrelid):
         self.group_name = "jW"
-        self.dir_format = "%ALBARTIST%-%ALBTITLE%-(%CATNO%)-%YEAR%-%GROUP%"
+        self.dir_format = "%ALBARTIST% - %YEAR% - %ALBTITLE%"
         self.m3u_format = "00-%ALBARTIST%-%ALBTITLE%.m3u"
         self.nfo_format = "00-%ALBARTIST%-%ALBTITLE%.nfo"
-        self.song_format = "%TRACKNO%-%ARTIST%-%TITLE%%TYPE%"
+        self.song_format = "%ALBTITLE% - %TRACKNO% - %TITLE%%TYPE%"
 
         self.sourcedir = sourcedir
         self.files_to_tag = self._get_target_list()
         self.album = DiscogsAlbum(ogsrelid)
+        album_title = self.album
 
         if len(self.files_to_tag) == len(self.album.tracks):
             self.tag_map = self._get_tag_map()
@@ -145,15 +157,12 @@ class TaggerUtils(object):
 def get_clean_filename(f):
     """ Removes unwanted characters from file names """
 
-    a = unicode(f, "utf-8")
+    a = unicode(f.lower(), "utf-8")
 
     for k, v in TaggerUtils.CHAR_EXCEPTIONS.iteritems():
         a = a.replace(k, v)
 
-    a = normalize("NFKD", a).encode("ascii", "ignore")
-
-    cf = re.compile(r"[^-\w.\(\)_]")
-    return cf.sub("", str(a))
+    return a
 
 
 def write_file(filecontents, filename):
@@ -201,8 +210,9 @@ def create_m3u(tag_map, dest_dir_name, m3u_filename):
     return write_file(m3u, os.path.join(dest_dir_name, m3u_filename))
 
 
-def get_images(images, dest_dir_name):
+def get_images(images, dest_dir_name, album_title):
     """ Download and store any available images """
+    image_filename = get_clean_filename(album_title.encode('utf-8'))
 
     if images:
         for i, image in enumerate(images, 1):
@@ -210,8 +220,10 @@ def get_images(images, dest_dir_name):
             try:
                 url_fh = TagOpener()
                 url_fh.retrieve(image, os.path.join(dest_dir_name,
-                                "00-image-%.2d.jpg" % i))
+                                #"00-image-%.2d.jpg" % i))
+                                "%s.jpg" % image_filename))
             except Exception as e:
                 logging.error("Unable to download image '%s', skipping."
                               % image)
                 print e
+            break # one image is enought
