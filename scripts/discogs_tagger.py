@@ -87,19 +87,19 @@ for track in release.tag_map:
                          release.dest_dir_name, track.new_file))
     # remove current metadata
     metadata.delete()
-    metadata.title = track.title
-    metadata.artist = track.artist
-    metadata.album = release.album.title
-    metadata.composer = release.album.artist
-    metadata.albumartist = release.album.artist
-    metadata.label = release.album.label
+    metadata.title = track.title.lower()
+    metadata.artist = track.artist.lower()
+    metadata.album = release.album.title.lower()
+    metadata.composer = release.album.artist.lower()
+    metadata.albumartist = release.album.artist.lower()
+    metadata.label = release.album.label.lower()
     metadata.year = release.album.year
     # adding two are there is no standard. discogstagger pre v1
     # used (TXXX desc="Catalog #")
     # mediafile uses TXXX desc="CATALOGNUMBER"
     metadata.catalognum = release.album.catno
     metadata.catalognumber = release.album.catno
-    metadata.genre = release.album.genre
+    metadata.genre = release.album.genre.lower()
     metadata.track = track.position
     metadata.tracktotal = len(release.tag_map)
 
