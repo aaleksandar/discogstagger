@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 import os
 import errno
@@ -70,7 +70,7 @@ else:
     os.mkdir(release.dest_dir_name)
 
 logging.info("Downloading and storing images")
-get_images(release.album.images, release.dest_dir_name)
+get_images(release.album.images, release.dest_dir_name, release.album.title)
 
 for track in release.tag_map:
     logger.info("Writing file %s" % os.path.join(release.dest_dir_name,
@@ -104,9 +104,9 @@ for track in release.tag_map:
     metadata.tracktotal = len(release.tag_map)
 
     if embed_coverart and os.path.exists(os.path.join(release.dest_dir_name,
-                                         "00-image-01.jpg")):
+                                         "%s.jpg" % release.album.title)):
         imgdata = open(os.path.join(release.dest_dir_name,
-                       "00-image-01.jpg")).read()
+                       "%s.jpg" % release.album.title)).read()
         imgtype = imghdr.what(None, imgdata)
 
         if imgtype in ("jpeg", "png"):
@@ -118,12 +118,12 @@ for track in release.tag_map:
 #
 # start supplementary actions
 #
-logging.info("Generating .nfo file")
-create_nfo(release.album.album_info, release.dest_dir_name,
-           release.nfo_filename)
+#logging.info("Generating .nfo file")
+#create_nfo(release.album.album_info, release.dest_dir_name,
+#           release.nfo_filename)
 
-logging.info("Generating .m3u file")
-create_m3u(release.tag_map, release.dest_dir_name, release.m3u_filename)
+#logging.info("Generating .m3u file")
+#create_m3u(release.tag_map, release.dest_dir_name, release.m3u_filename)
 
 # remove source directory, if configured as such.
 if not keep_original:
